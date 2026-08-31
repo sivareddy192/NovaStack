@@ -29,18 +29,14 @@ export const FOOTER_LINKS = {
     { name: 'API & Backend Architecture', path: '/services#api-backend-development' },
   ],
   socials: [
-    { name: 'GitHub', url: 'https://github.com/novastack', icon: 'Github' },
-    { name: 'LinkedIn', url: 'https://linkedin.com/company/novastack-dev', icon: 'Linkedin' },
-    { name: 'Twitter / X', url: 'https://twitter.com/novastack_dev', icon: 'Twitter' },
-    { name: 'WhatsApp', url: 'https://wa.me/919999999999?text=Hello%20NovaStack%20Team', icon: 'MessageSquare' },
+    { name: 'WhatsApp', url: 'https://wa.me/917207560098?text=Hello%20NovaStack%20Team', icon: 'MessageSquare' },
   ],
 };
 
 export const CONTACT_INFO = {
-  email: 'hello@novastack.dev',
-  salesEmail: 'build@novastack.dev',
-  phone: '+91 98765 43210',
-  whatsapp: '+91 98765 43210',
-  location: 'Tech Hub, Bangalore & Hyderabad, India',
+  email: 'novastack720@gmail.com',
+  salesEmail: 'novastack720@gmail.com',
+  phone: '+91 72075 60098',
+  whatsapp: '+91 72075 60098',
   hours: 'Mon - Fri: 9:00 AM - 7:00 PM IST',
 };

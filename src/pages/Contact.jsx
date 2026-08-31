@@ -158,7 +158,7 @@ export const Contact = () => {
                   </a>
 
                   <a
-                    href={`https://wa.me/919876543210?text=Hello%20NovaStack`}
+                    href={`https://wa.me/917207560098?text=Hello%20NovaStack`}
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 hover:border-emerald-300 transition-all text-emerald-800 hover:text-emerald-900 group"
@@ -253,7 +253,7 @@ export const Contact = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Input
                       label="Phone / WhatsApp"
-                      placeholder="+91 98765 43210"
+                      placeholder="+91 72075 60098"
                       {...register('phone')}
                     />
                     <Input

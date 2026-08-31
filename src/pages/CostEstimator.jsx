@@ -453,7 +453,7 @@ export const CostEstimator = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <Input
                           label="Phone / WhatsApp"
-                          placeholder="+91 98765 43210"
+                          placeholder="+91 72075 60098"
                           {...register('phone')}
                         />
                         <Input
