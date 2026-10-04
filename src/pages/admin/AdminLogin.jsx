@@ -91,6 +91,7 @@ export const AdminLogin = () => {
                 label="Email Address"
                 type="email"
                 icon={Mail}
+                autoComplete="email"
                 placeholder="you@example.com"
                 error={errors.email?.message}
                 {...register('email', {
@@ -106,6 +107,7 @@ export const AdminLogin = () => {
                 label="Password"
                 type="password"
                 icon={Lock}
+                autoComplete="current-password"
                 placeholder="••••••••••••"
                 error={errors.password?.message}
                 {...register('password', { required: 'Password is required' })}

@@ -21,6 +21,7 @@ import {
 } from '../../services/api';
 import { slugify } from '../../utils/formatters';
 import SEO from '../../components/common/SEO';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 export const AdminInsights = () => {
   const [insights, setInsights] = useState([]);
@@ -165,10 +166,7 @@ export const AdminInsights = () => {
 
         {/* Table */}
         {loading ? (
-          <div className="py-20 text-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
-            <p className="mt-3 text-xs">Loading articles...</p>
-          </div>
+          <LoadingSkeleton count={5} type="list" />
         ) : (
           <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">

@@ -25,41 +25,41 @@ import InsightCard from '../components/cards/InsightCard';
 import FadeIn, { StaggerContainer } from '../components/animations/FadeIn';
 import CTASection from '../components/common/CTASection';
 import SEO from '../components/common/SEO';
-import { getProjects, getServices, getInsights } from '../services/api';
+import { getServices, getInsights, getProjects } from '../services/api';
 import { trackEvent } from '../utils/analytics';
 
 export const Home = () => {
-  const [projects, setProjects] = useState([]);
   const [services, setServices] = useState([]);
   const [insights, setInsights] = useState([]);
+  const [portfolioProjects, setPortfolioProjects] = useState([]);
   const [activeCategory, setActiveCategory] = useState('All');
-  const [loading, setLoading] = useState(true);
+  const [projectsLoading, setProjectsLoading] = useState(true);
 
   useEffect(() => {
     const loadHomeData = async () => {
       try {
-        const [projData, servData, insData] = await Promise.all([
-          getProjects({ featured: true }),
+        const [servData, insData, projectData] = await Promise.all([
           getServices(),
           getInsights({ limit: 3 }),
+          getProjects({ featured: true }),
         ]);
-        setProjects(projData);
         setServices(servData.slice(0, 6)); // Top 6 on home
         setInsights(insData.slice(0, 3));
+        setPortfolioProjects(projectData.slice(0, 6));
       } catch (err) {
         console.error('Home data load error:', err);
       } finally {
-        setLoading(false);
+        setProjectsLoading(false);
       }
     };
     loadHomeData();
   }, []);
 
-  const categories = ['All', 'Food Ordering', 'E-Commerce', 'Dashboard', 'SaaS'];
+  const categories = ['All', ...new Set(portfolioProjects.map((project) => project.category).filter(Boolean))];
   const filteredProjects =
     activeCategory === 'All'
-      ? projects
-      : projects.filter((p) => p.category === activeCategory);
+      ? portfolioProjects
+      : portfolioProjects.filter((p) => p.category === activeCategory);
 
   const homeSchema = {
     '@context': 'https://schema.org',
@@ -266,7 +266,14 @@ export const Home = () => {
 
             {/* Category Filter Pills */}
             <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
+              {projectsLoading ? [16, 28, 24, 20, 12, 26, 32].map((width, index) => (
+                <div
+                  key={index}
+                  className="h-8 animate-pulse rounded-full border border-slate-200 bg-white"
+                  style={{ width: `${width * 7}px` }}
+                  aria-hidden="true"
+                />
+              )) : categories.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
@@ -283,13 +290,31 @@ export const Home = () => {
           </div>
 
           {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProjects.slice(0, 3).map((project, idx) => (
-              <FadeIn key={project.slug} delay={idx * 0.1}>
-                <ProjectCard project={project} />
-              </FadeIn>
-            ))}
-          </div>
+          {projectsLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" aria-label="Loading featured projects">
+              {[0, 1, 2].map((item) => (
+                <div key={item} className="rounded-3xl bg-white border border-slate-200 p-6 space-y-5 animate-pulse">
+                  <div className="aspect-[16/10] rounded-2xl bg-slate-200" />
+                  <div className="h-3 w-24 rounded-full bg-slate-200" />
+                  <div className="h-7 w-4/5 rounded-lg bg-slate-200" />
+                  <div className="h-3 w-full rounded-full bg-slate-100" />
+                  <div className="h-3 w-5/6 rounded-full bg-slate-100" />
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 rounded-full bg-slate-100" />
+                    <div className="h-6 w-20 rounded-full bg-slate-100" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredProjects.slice(0, 3).map((project, idx) => (
+                <FadeIn key={project.slug} delay={idx * 0.1}>
+                  <ProjectCard project={project} />
+                </FadeIn>
+              ))}
+            </div>
+          )}
 
           <div className="mt-12 text-center">
             <Link

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import emailjs from '@emailjs/browser';
 import {
   Mail,
   Phone,
@@ -59,18 +60,56 @@ export const Contact = () => {
     setSubmitting(true);
     setErrorMessage('');
     try {
-      const response = await sendContactInquiry(data);
-      if (response.success) {
-        setIsSuccess(true);
-        reset();
-        trackEvent('contact_form_submitted', { service: data.service });
-      } else {
-        setErrorMessage(response.message || 'Failed to submit inquiry.');
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (
+        !serviceId ||
+        !templateId ||
+        !publicKey ||
+        serviceId === 'your_service_id' ||
+        templateId === 'your_template_id' ||
+        publicKey === 'your_public_key'
+      ) {
+        throw new Error('EmailJS is not configured.');
       }
-    } catch (err) {
-      console.error('Contact submission error:', err);
+
+      await emailjs.send(
+        serviceId,
+        templateId,
+        {
+          from_name: data.name,
+          from_email: data.email,
+          phone: data.phone || '',
+          subject: data.service || 'NovaStack project inquiry',
+          message: data.message,
+        },
+        publicKey
+      );
+
+      // Keep the inquiry available in the admin console without making
+      // backend availability block a successfully delivered email.
+      try {
+        await sendContactInquiry(data);
+      } catch {
+        console.warn('Contact email sent, but the inquiry could not be saved to the admin console.');
+      }
+
+      setIsSuccess(true);
+      reset();
+      trackEvent('contact_form_submitted', { service: data.service });
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error('EmailJS contact delivery failed', {
+          status: error?.status,
+          message: error?.text || error?.message,
+        });
+      }
       setErrorMessage(
-        err.response?.data?.message || 'Error submitting inquiry. Please try again.'
+        error?.status === 412
+          ? 'Email delivery is temporarily unavailable. Please try again later or contact NovaStack directly.'
+          : 'Something went wrong while sending your message. Please try again.'
       );
     } finally {
       setSubmitting(false);

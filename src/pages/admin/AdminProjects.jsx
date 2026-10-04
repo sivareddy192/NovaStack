@@ -14,6 +14,7 @@ import Modal from '../../components/common/Modal';
 import Input from '../../components/forms/Input';
 import Textarea from '../../components/forms/Textarea';
 import Select from '../../components/forms/Select';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 import {
   getProjects,
   createProject,
@@ -35,13 +36,14 @@ export const AdminProjects = () => {
     handleSubmit,
     setValue,
     reset,
+    watch,
     formState: { errors },
   } = useForm();
 
   const loadProjects = async () => {
     setLoading(true);
     try {
-      const data = await getProjects();
+      const data = await getProjects({ includeUnpublished: true });
       setProjects(data);
     } catch (err) {
       console.error('Failed to load projects', err);
@@ -61,6 +63,7 @@ export const AdminProjects = () => {
       slug: '',
       tagline: '',
       category: 'Full-Stack Application',
+      customCategory: '',
       description: '',
       technologies: 'React.js, Node.js, Express.js, MongoDB',
       thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&auto=format&fit=crop&q=80',
@@ -77,11 +80,15 @@ export const AdminProjects = () => {
 
   const handleOpenEdit = (project) => {
     setEditingProject(project);
+    const category = categoryOptions.some((option) => option.value === project.category)
+      ? project.category
+      : 'Other';
     reset({
       title: project.title,
       slug: project.slug,
       tagline: project.tagline || '',
-      category: project.category || 'Full-Stack Application',
+      category: project.category ? category : 'Full-Stack Application',
+      customCategory: category === 'Other' ? project.category : '',
       description: project.description,
       technologies: Array.isArray(project.technologies)
         ? project.technologies.join(', ')
@@ -112,21 +119,42 @@ export const AdminProjects = () => {
   const onSubmit = async (formData) => {
     setSaving(true);
     try {
+      const category = formData.category === 'Other'
+        ? formData.customCategory?.trim()
+        : formData.category;
+
+      if (!category) {
+        alert('Please enter a category name.');
+        setSaving(false);
+        return;
+      }
+
       const payload = {
         ...formData,
+        category,
         slug: formData.slug || slugify(formData.title),
         technologies: formData.technologies
           ? formData.technologies.split(',').map((t) => t.trim()).filter(Boolean)
           : ['React.js', 'Node.js', 'Express.js', 'MongoDB'],
       };
+      delete payload.customCategory;
 
       if (editingProject) {
-        const updated = await updateProject(editingProject._id || editingProject.slug, payload);
-        setProjects(
-          projects.map((p) =>
-            p._id === editingProject._id || p.slug === editingProject.slug ? updated : p
-          )
+        const updated = await updateProject(
+          editingProject._id || editingProject.slug,
+          payload,
+          editingProject.slug
         );
+        setProjects((currentProjects) => {
+          const exists = currentProjects.some(
+            (p) => p._id === editingProject._id || p.slug === editingProject.slug
+          );
+          return exists
+            ? currentProjects.map((p) =>
+                p._id === editingProject._id || p.slug === editingProject.slug ? updated : p
+              )
+            : [updated, ...currentProjects];
+        });
       } else {
         const created = await createProject(payload);
         setProjects([created, ...projects]);
@@ -134,7 +162,7 @@ export const AdminProjects = () => {
       setIsModalOpen(false);
     } catch (err) {
       console.error('Save project error:', err);
-      alert('Error saving project');
+      alert(err.response?.data?.message || 'Error saving project');
     } finally {
       setSaving(false);
     }
@@ -147,7 +175,9 @@ export const AdminProjects = () => {
     { value: 'SaaS', label: 'SaaS' },
     { value: 'Business Website', label: 'Business Website' },
     { value: 'Full-Stack Application', label: 'Full-Stack Application' },
+    { value: 'Other', label: 'Other (Add new category)' },
   ];
+  const selectedCategory = watch('category');
 
   return (
     <>
@@ -176,10 +206,7 @@ export const AdminProjects = () => {
 
         {/* Table / List */}
         {loading ? (
-          <div className="py-20 text-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
-            <p className="mt-3 text-xs">Loading projects...</p>
-          </div>
+          <LoadingSkeleton count={5} type="list" />
         ) : (
           <div className="rounded-2xl bg-white border border-slate-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -301,6 +328,21 @@ export const AdminProjects = () => {
                 {...register('tagline')}
               />
             </div>
+            {selectedCategory === 'Other' && (
+              <Input
+                label="New Category Name"
+                required
+                placeholder="e.g. Healthcare Platform"
+                error={errors.customCategory?.message}
+                {...register('customCategory', {
+                  validate: (value) => (
+                    watch('category') !== 'Other' || value?.trim()
+                      ? true
+                      : 'Category name is required'
+                  ),
+                })}
+              />
+            )}
 
             <Textarea
               label="Short Overview Description"

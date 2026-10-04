@@ -4,6 +4,7 @@ import SectionHeading from '../components/common/SectionHeading';
 import ServiceCard from '../components/cards/ServiceCard';
 import CTASection from '../components/common/CTASection';
 import SEO from '../components/common/SEO';
+import LoadingSkeleton from '../components/common/LoadingSkeleton';
 import { getServices } from '../services/api';
 
 export const Services = () => {
@@ -64,11 +65,15 @@ export const Services = () => {
             subtitle="Explore our 8 specialized engineering capabilities. Every solution is architected with modern standards, automated testing, and zero technical debt."
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
-            {services.map((service) => (
-              <ServiceCard key={service.slug} service={service} detailed={true} />
-            ))}
-          </div>
+          {loading ? (
+            <LoadingSkeleton count={6} className="mt-16" />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-16">
+              {services.map((service) => (
+                <ServiceCard key={service.slug} service={service} detailed={true} />
+              ))}
+            </div>
+          )}
         </Container>
       </section>
 

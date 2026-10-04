@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Container from '../components/common/Container';
 import SectionHeading from '../components/common/SectionHeading';
 import ProjectCard from '../components/cards/ProjectCard';
@@ -11,34 +11,53 @@ export const Projects = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    let active = true;
+    getProjects().then((data) => {
+      if (active) setProjects(data);
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => { active = false; };
+  }, []);
+
   const categories = [
     'All',
-    'Food Ordering',
-    'E-Commerce',
-    'Dashboard',
-    'SaaS',
-    'Business Website',
-    'Full-Stack Application',
+    ...new Set(projects.map((project) => project.category).filter(Boolean)),
   ];
-
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const data = await getProjects();
-        setProjects(data);
-      } catch (err) {
-        console.error('Failed to load projects:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProjects();
-  }, []);
 
   const filteredProjects =
     activeCategory === 'All'
       ? projects
       : projects.filter((p) => p.category === activeCategory);
+
+  const ProjectSkeleton = () => (
+    <div className="rounded-3xl bg-white border border-slate-200 overflow-hidden animate-pulse">
+      <div className="aspect-[16/10] bg-slate-200" />
+      <div className="p-6 space-y-4">
+        <div className="h-3 w-24 rounded-full bg-slate-200" />
+        <div className="h-6 w-4/5 rounded-lg bg-slate-200" />
+        <div className="h-3 w-full rounded-full bg-slate-100" />
+        <div className="h-3 w-3/4 rounded-full bg-slate-100" />
+        <div className="flex gap-2 pt-2">
+          <div className="h-6 w-16 rounded-full bg-slate-100" />
+          <div className="h-6 w-20 rounded-full bg-slate-100" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const CategorySkeleton = () => (
+    <div className="flex flex-wrap items-center justify-center gap-2" aria-label="Loading project categories">
+      {[16, 28, 24, 20, 12, 26, 32].map((width, index) => (
+        <div
+          key={index}
+          className="h-10 animate-pulse rounded-full border border-slate-200 bg-slate-100"
+          style={{ width: `${width * 8}px` }}
+        />
+      ))}
+    </div>
+  );
 
   const collectionSchema = {
     '@context': 'https://schema.org',
@@ -60,14 +79,14 @@ export const Projects = () => {
         <Container>
           <SectionHeading
             badge="Selected Work"
-            title="Real-World Products."
-            highlight="Real Results."
-            subtitle="Explore our portfolio of completed full-stack software applications across e-commerce, on-demand food delivery, administrative operations, and SaaS."
+            title="Projects built to make an"
+            highlight="impact."
+            subtitle="A small selection of products and experiments that reflect how we approach interfaces, systems, and solving real problems."
           />
 
           {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-12 mb-16">
-            {categories.map((cat) => (
+            {loading ? <CategorySkeleton /> : categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
@@ -83,13 +102,19 @@ export const Projects = () => {
           </div>
 
           {/* Projects Grid */}
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" aria-label="Loading projects">
+              {[0, 1, 2].map((item) => <ProjectSkeleton key={item} />)}
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredProjects.map((project) => (
-              <ProjectCard key={project.slug} project={project} />
+              <ProjectCard key={project._id} project={project} />
             ))}
           </div>
+          )}
 
-          {filteredProjects.length === 0 && !loading && (
+          {!loading && filteredProjects.length === 0 && (
             <div className="text-center py-20 text-slate-500 text-sm">
               No projects found matching the selected category.
             </div>

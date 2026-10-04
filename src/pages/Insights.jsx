@@ -5,6 +5,7 @@ import SectionHeading from '../components/common/SectionHeading';
 import InsightCard from '../components/cards/InsightCard';
 import CTASection from '../components/common/CTASection';
 import SEO from '../components/common/SEO';
+import LoadingSkeleton from '../components/common/LoadingSkeleton';
 import { getInsights } from '../services/api';
 
 export const Insights = () => {
@@ -107,11 +108,15 @@ export const Insights = () => {
           </div>
 
           {/* Articles Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredInsights.map((article) => (
-              <InsightCard key={article.slug} insight={article} />
-            ))}
-          </div>
+          {loading ? (
+            <LoadingSkeleton count={6} />
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredInsights.map((article) => (
+                <InsightCard key={article.slug} insight={article} />
+              ))}
+            </div>
+          )}
 
           {filteredInsights.length === 0 && !loading && (
             <div className="text-center py-20 text-slate-500 text-sm">

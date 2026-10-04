@@ -113,6 +113,7 @@ export const AdminRegister = () => {
               <Input
                 label="Full Name"
                 icon={User}
+                autoComplete="name"
                 placeholder="e.g. Siva Reddy"
                 error={errors.name?.message}
                 {...register('name', { required: 'Full name is required' })}
@@ -122,6 +123,7 @@ export const AdminRegister = () => {
                 label="Email Address"
                 type="email"
                 icon={Mail}
+                autoComplete="email"
                 placeholder="you@example.com"
                 error={errors.email?.message}
                 {...register('email', {
@@ -137,6 +139,7 @@ export const AdminRegister = () => {
                 label="Password"
                 type="password"
                 icon={Lock}
+                autoComplete="new-password"
                 placeholder="Minimum 6 characters"
                 error={errors.password?.message}
                 {...register('password', {
@@ -152,6 +155,7 @@ export const AdminRegister = () => {
                 label="Confirm Password"
                 type="password"
                 icon={Lock}
+                autoComplete="new-password"
                 placeholder="Re-enter your password"
                 error={errors.confirmPassword?.message}
                 {...register('confirmPassword', {

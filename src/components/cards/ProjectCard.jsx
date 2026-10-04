@@ -30,6 +30,9 @@ export const ProjectCard = ({ project, featured = false }) => {
         <img
           src={thumbnail}
           alt={title}
+          width="1200"
+          height="675"
+          decoding="async"
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />

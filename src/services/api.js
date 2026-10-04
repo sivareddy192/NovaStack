@@ -1,6 +1,5 @@
 import axios from 'axios';
 import {
-  FALLBACK_PROJECTS,
   FALLBACK_SERVICES,
   FALLBACK_INSIGHTS,
   DEFAULT_PRICING_CONFIG,
@@ -45,17 +44,10 @@ api.interceptors.response.use(
 export const getProjects = async (params = {}) => {
   try {
     const response = await api.get('/projects', { params });
-    return response.data?.data || FALLBACK_PROJECTS;
+    return response.data?.data || [];
   } catch (error) {
-    console.warn('[API fallback] getProjects:', error.message);
-    let list = [...FALLBACK_PROJECTS];
-    if (params.category && params.category !== 'All') {
-      list = list.filter((p) => p.category === params.category);
-    }
-    if (params.featured) {
-      list = list.filter((p) => p.featured);
-    }
-    return list;
+    console.error('Failed to load projects from the database:', error.message);
+    return [];
   }
 };
 
@@ -64,9 +56,7 @@ export const getProjectBySlug = async (slug) => {
     const response = await api.get(`/projects/${slug}`);
     return response.data?.data;
   } catch (error) {
-    console.warn('[API fallback] getProjectBySlug:', error.message);
-    const found = FALLBACK_PROJECTS.find((p) => p.slug === slug);
-    if (found) return found;
+    console.error('Failed to load project from the database:', error.message);
     throw error;
   }
 };
@@ -76,9 +66,25 @@ export const createProject = async (data) => {
   return response.data?.data;
 };
 
-export const updateProject = async (id, data) => {
-  const response = await api.put(`/projects/${id}`, data);
-  return response.data?.data;
+export const updateProject = async (id, data, alternateId) => {
+  try {
+    const response = await api.put(`/projects/${encodeURIComponent(id)}`, data);
+    return response.data?.data;
+  } catch (error) {
+    if (
+      error.response?.status === 404 &&
+      alternateId &&
+      alternateId !== id
+    ) {
+      try {
+        const response = await api.put(`/projects/${encodeURIComponent(alternateId)}`, data);
+        return response.data?.data;
+      } catch (alternateError) {
+        throw alternateError;
+      }
+    }
+    throw error;
+  }
 };
 
 export const deleteProject = async (id) => {

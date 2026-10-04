@@ -50,10 +50,20 @@ export const InsightDetails = () => {
 
   if (loading) {
     return (
-      <div className="py-32 text-center text-slate-500">
-        <div className="animate-spin w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full mx-auto mb-4" />
-        <p className="text-xs">Loading article...</p>
-      </div>
+      <article className="pt-10 pb-20 md:pt-16 md:pb-28 animate-pulse">
+        <Container size="default">
+          <div className="h-4 w-36 rounded-full bg-slate-200 mb-8" />
+          <div className="h-7 w-28 rounded-full bg-slate-200 mb-4" />
+          <div className="h-12 w-3/4 rounded-xl bg-slate-200 mb-4" />
+          <div className="h-4 w-1/2 rounded-full bg-slate-100 mb-10" />
+          <div className="aspect-[16/9] rounded-3xl bg-slate-200 mb-10" />
+          <div className="space-y-3 max-w-3xl">
+            <div className="h-4 rounded-full bg-slate-100" />
+            <div className="h-4 rounded-full bg-slate-100" />
+            <div className="h-4 w-4/5 rounded-full bg-slate-100" />
+          </div>
+        </Container>
+      </article>
     );
   }
 

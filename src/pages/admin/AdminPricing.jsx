@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { getEstimatorConfig, updatePricingConfig } from '../../services/api';
 import SEO from '../../components/common/SEO';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 export const AdminPricing = () => {
   const [config, setConfig] = useState(null);
@@ -65,12 +66,7 @@ export const AdminPricing = () => {
   };
 
   if (loading || !config) {
-    return (
-      <div className="py-20 text-center text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
-        <p className="mt-3 text-xs">Loading pricing engine matrix...</p>
-      </div>
-    );
+    return <LoadingSkeleton count={8} type="list" className="max-w-4xl mx-auto py-12" />;
   }
 
   return (

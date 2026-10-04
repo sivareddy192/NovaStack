@@ -21,6 +21,7 @@ import {
 } from '../../services/api';
 import { formatDate } from '../../utils/formatters';
 import SEO from '../../components/common/SEO';
+import LoadingSkeleton from '../../components/common/LoadingSkeleton';
 
 export const AdminLeads = () => {
   const [activeTab, setActiveTab] = useState('contacts');
@@ -158,10 +159,7 @@ export const AdminLeads = () => {
         </div>
 
         {loading ? (
-          <div className="py-20 text-center text-slate-400">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto text-indigo-600" />
-            <p className="mt-3 text-xs">Loading leads...</p>
-          </div>
+          <LoadingSkeleton count={4} type="list" />
         ) : activeTab === 'contacts' ? (
           /* Contact Submissions */
           <div className="space-y-4">
@@ -344,6 +342,38 @@ export const AdminLeads = () => {
                       <span className="text-slate-700 font-medium">{lead.timeline}</span>
                     </div>
 
+                    <div>
+                      <span className="text-slate-400 uppercase font-semibold block mb-1">
+                        Build Type
+                      </span>
+                      <span className="text-slate-900 font-semibold">
+                        {lead.buildType || lead.complexity || 'Not provided'}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span className="text-slate-400 uppercase font-semibold block mb-1">
+                        Pages
+                      </span>
+                      <span className="text-slate-700 font-medium">
+                        {lead.numberOfPages || 'Not provided'}
+                      </span>
+                    </div>
+
+                    {lead.pricing && (
+                      <div className="sm:col-span-2">
+                        <span className="text-slate-400 uppercase font-semibold block mb-1">
+                          Pricing Breakdown
+                        </span>
+                        <span className="text-slate-700 font-medium">
+                          Package ₹{(lead.pricing.packagePrice || 0).toLocaleString('en-IN')}
+                          {' · '}Add-ons ₹{(lead.pricing.featureTotal || 0).toLocaleString('en-IN')}
+                          {' · '}Total ₹{(lead.pricing.total || lead.estimatedMinPrice || 0).toLocaleString('en-IN')}
+                          {lead.pricing.monthlyTotal ? ` · ₹${lead.pricing.monthlyTotal.toLocaleString('en-IN')}/month` : ''}
+                        </span>
+                      </div>
+                    )}
+
                     {lead.features && lead.features.length > 0 && (
                       <div className="sm:col-span-4">
                         <span className="text-slate-400 uppercase font-semibold block mb-1.5">
@@ -359,6 +389,17 @@ export const AdminLeads = () => {
                             </span>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {(lead.customRequirements || lead.contact?.description) && (
+                      <div className="sm:col-span-4">
+                        <span className="text-slate-400 uppercase font-semibold block mb-1.5">
+                          Requirements
+                        </span>
+                        <p className="whitespace-pre-line rounded-xl border border-slate-100 bg-slate-50 p-3 text-slate-700 leading-relaxed">
+                          {lead.customRequirements || lead.contact.description}
+                        </p>
                       </div>
                     )}
                   </div>
